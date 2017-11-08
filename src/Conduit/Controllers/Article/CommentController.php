@@ -7,6 +7,7 @@ use Conduit\Models\Comment;
 use Conduit\Transformers\ArticleTransformer;
 use Conduit\Transformers\CommentTransformer;
 use Interop\Container\ContainerInterface;
+use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -50,9 +51,14 @@ class CommentController
      */
     public function index(Request $request, Response $response, array $args)
     {
+        $requestUserId = optional($this->auth->requestUser($request))->id;
+
         $article = Article::query()->with('comments')->where('slug', $args['slug'])->firstOrFail();
 
-        return $response->withJson(['comments' => $article->comments->toArray()]);
+        $data = $this->fractal->createData(new Collection($article->comments,
+            new CommentTransformer($requestUserId)))->toArray();
+
+        return $response->withJson(['comments' => $data['data']]);
     }
 
     /**

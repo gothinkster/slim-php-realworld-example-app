@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Models;
 
+use Conduit\Models\Article;
+use Conduit\Models\Comment;
 use Conduit\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +21,7 @@ class UserTest extends BaseTestCase
         $user = new User();
 
         $this->assertInstanceOf(HasMany::class, $user->comments());
+        $this->assertInstanceOf(Comment::class, $user->comments()->getRelated());
     }
 
     /** @test */
@@ -27,6 +30,7 @@ class UserTest extends BaseTestCase
         $user = new User();
 
         $this->assertInstanceOf(BelongsToMany::class, $user->followings());
+        $this->assertInstanceOf(User::class, $user->followings()->getRelated());
     }
 
     /** @test */
@@ -75,5 +79,15 @@ class UserTest extends BaseTestCase
 
         $user->follow($followedUser->id);
         $this->assertCount(1, $user->fresh()->followings);
+    }
+
+    /** @test */
+    public function it_has_favorite_articles_relationship()
+    {
+        $user = new User();
+
+        $this->assertInstanceOf(BelongsToMany::class, $user->favoriteArticles());
+        $this->assertInstanceOf(Article::class, $user->favoriteArticles()->getRelated());
+
     }
 }
