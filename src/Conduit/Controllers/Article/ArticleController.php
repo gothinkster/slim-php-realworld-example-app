@@ -6,6 +6,7 @@ use Conduit\Models\Article;
 use Conduit\Models\Tag;
 use Conduit\Transformers\ArticleTransformer;
 use Interop\Container\ContainerInterface;
+use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -36,6 +37,66 @@ class ArticleController
         $this->fractal = $container->get('fractal');
         $this->validator = $container->get('validator');
         $this->db = $container->get('db');
+    }
+
+    /**
+     * Return List of Articles
+     *
+     * @param \Slim\Http\Request  $request
+     * @param \Slim\Http\Response $response
+     * @param array               $args
+     *
+     * @return \Slim\Http\Response
+     */
+    public function index(Request $request, Response $response, array $args)
+    {
+        // TODO Extract the login of filtering articles to its own class
+
+        $requestUserId = optional($requestUser = $this->auth->requestUser($request))->id;
+        $builder = Article::query()->latest()->with(['tags', 'user'])->limit(20);
+
+
+        if ($request->getUri()->getPath() == '/api/articles/feed') {
+            if (is_null($requestUser)) {
+                return $response->withJson([], 401);
+            }
+            $ids = $requestUser->followings->pluck('id');
+            $builder->whereIn('user_id', $ids);
+        }
+
+        if ($author = $request->getParam('author')) {
+            $builder->whereHas('user', function ($query) use ($author) {
+                $query->where('username', $author);
+            });
+        }
+
+        if ($tag = $request->getParam('tag')) {
+            $builder->whereHas('tags', function ($query) use ($tag) {
+                $query->where('title', $tag);
+            });
+        }
+
+        if ($favoriteByUser = $request->getParam('favorited')) {
+            $builder->whereHas('favorites', function ($query) use ($favoriteByUser) {
+                $query->where('username', $favoriteByUser);
+            });
+        }
+
+        if ($limit = $request->getParam('limit')) {
+            $builder->limit($limit);
+        }
+
+        if ($offset = $request->getParam('offset')) {
+            $builder->offset($offset);
+        }
+
+        $articlesCount = $builder->count();
+        $articles = $builder->get();
+
+        $data = $this->fractal->createData(new Collection($articles,
+            new ArticleTransformer($requestUserId)))->toArray();
+
+        return $response->withJson(['articles' => $data['data'], 'articlesCount' => $articlesCount]);
     }
 
     /**
