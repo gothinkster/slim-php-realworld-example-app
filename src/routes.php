@@ -1,6 +1,7 @@
 <?php
 
 use Conduit\Controllers\Article\ArticleController;
+use Conduit\Controllers\Article\CommentController;
 use Conduit\Controllers\Auth\LoginController;
 use Conduit\Controllers\Auth\RegisterController;
 use Conduit\Controllers\User\ProfileController;
@@ -70,6 +71,21 @@ $app->group('/api', function () {
             ],
             200);
     });
+
+    // Comments
+    $this->get('/articles/{slug}/comments',
+        CommentController::class . ':index')
+        ->add($optionalAuth)
+        ->setName('comment.index');
+    $this->post('/articles/{slug}/comments',
+        CommentController::class . ':store')
+        ->add($jwtMiddleware)
+        ->setName('comment.store');
+    $this->delete('/articles/{slug}/comments/{id}',
+        CommentController::class . ':destroy')
+        ->add($jwtMiddleware)
+        ->setName('comment.destroy');
+
 });
 
 
