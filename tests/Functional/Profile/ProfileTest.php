@@ -69,4 +69,11 @@ class ProfileTest extends BaseTestCase
         $this->assertTrue($body['profile']['following']);
     }
 
+    /** @test */
+    public function it_returns_404_status_code_when_profile_is_not_found()
+    {
+        $response = $this->request('GET', '/api/profiles/not-found-profile');
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
 }
