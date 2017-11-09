@@ -9,6 +9,12 @@ use League\Fractal\Serializer\ArraySerializer;
 
 $container = $app->getContainer();
 
+
+// Error Handler
+$container['errorHandler'] = function ($c) {
+    return new \Conduit\Exceptions\ErrorHandler($c['settings']['displayErrorDetails']);
+};
+
 // App Service Providers
 $container->register(new \Conduit\Services\Database\EloquentServiceProvider());
 $container->register(new \Conduit\Services\Auth\AuthServiceProvider());
