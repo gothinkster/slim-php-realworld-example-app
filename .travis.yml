@@ -1,0 +1,16 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+
+env:
+  global:
+    - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
+
+before_script:
+  - composer self-update
+  - composer install --prefer-source --no-interaction
+
+script: vendor/bin/phpunit
+
