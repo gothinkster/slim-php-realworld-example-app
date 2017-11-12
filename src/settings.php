@@ -32,7 +32,7 @@ return [
         'logger'                 => [
             'name'  => getenv('APP_NAME'),
             'path'  => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
-            'level' => \Monolog\Logger::getLevels()[mb_strtoupper(getenv('APP_LOG_LEVEL'))],
+            'level' => \Monolog\Logger::DEBUG,
         ],
 
         // Database settings
