@@ -195,7 +195,7 @@ for example.
 > see [CORS](#cors) for details
 
 ### Controllers
-After passing through all assigned middlewares, the request will be processed by a controller.
+After passing through all assigned middleware, the request will be processed by a controller.
 > Note: You could process the request inside a closure passed as the second argument to the method defining the route.
 > For example, (the last route)[https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/routes.php#L88-L95],
 which is left from the skeleton project, handles the request in a closure
@@ -271,7 +271,6 @@ Again, we use the OptionalAuth middleware by store it in Container and retrieve 
         $this->get('/articles/feed', ArticleController::class . ':index')->add($optionalAuth);
 ```
 
-
 ## Authorization
 Some routes required authorization to verify that user is authorized to submit the request.
 For example, when a user wants to edit an article, we need to verify that he is owner of the article.
@@ -287,6 +286,21 @@ However, in a bigger application you might want to implement more robust authori
 
 ## Security
 **CORS**
+[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) is used when the request is coming from a different host.
+By default, web browsers will prevent such requests.
+The browser will start by sending an `OPTION` request to the server to get the approval and then send the actual request.
+
+Therefor, we handle cross-origin HTTP requests by making two changes to our app:
+- Allow `OPTIONS` request.  
+- Return the approval in the response. 
+
+This is done in the by adding two middleware in the [middleware.php](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/middleware.php) file
+The first middleware will add the required headers for CORS approval.
+And the second, deals with issue of redirect when the route ends with a slash.
+
+For more information check Slim documentations:
+- [Setting up CORS](https://www.slimframework.com/docs/cookbook/enable-cors.html)
+- [Trailing / in route patterns](https://www.slimframework.com/docs/cookbook/route-patterns.html)
 
 # Test
 `composer test`
