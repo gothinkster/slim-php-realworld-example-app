@@ -12,6 +12,38 @@ We've gone to great lengths to adhere to the **Slim** community styleguides & be
 
 For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
+* [How it works](#how-it-works)
+* [Getting Started](#getting-started)
+  * [Pre-requisites](#pre-requisites)
+  * [Installation](#installation)
+     * [Dependencies](#dependencies)
+     * [Environments Variables](#environments-variables)
+* [Code Overview](#code-overview)
+  * [Directory Structure](#directory-structure)
+  * [Design Architecture](#design-architecture)
+     * [Api Design](#api-design)
+     * [Code Design](#code-design)
+     * [Data Structure](#data-structure)
+  * [The Slim Application](#the-slim-application)
+     * [Entry Point:](#entry-point)
+     * [The App Instance](#the-app-instance)
+     * [Container Dependencies and Services](#container-dependencies-and-services)
+        * [Service Providers](#service-providers)
+  * [Request-Response Cycle](#request-response-cycle)
+     * [Routes:](#routes)
+     * [Middleware](#middleware)
+     * [Controllers](#controllers)
+* [Authentication and Security](#authentication-and-security)
+  * [Authentication (JWT)](#authentication-jwt)
+     * [Basic Idea](#basic-idea)
+     * [Generating The Token](#generating-the-token)
+     * [JWT Verification](#jwt-verification)
+     * [Optional Routes](#optional-routes)
+  * [Authorization](#authorization)
+  * [Security](#security)
+     * [CORS](#cors)
+* [Test](#test)
+
 
 # How it works
 The basic idea behind this app is to provide a backend web service for the website [Conduit](https://demo.realworld.io/#/)
