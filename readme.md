@@ -141,6 +141,22 @@ composer start
 This command will spin a local php server which is enough for testing.
 You can check the api by visiting [http://localhost:8080/api/articles](http://localhost:8080/api/articles)
 ### Entry Point:
+The server will direct all requests to [index.php](public/index.php). 
+There, we boot the app by creating an instance of Slim\App and require all the settings and relevant files.
+
+Finally, we run the app by calling `$app->run()`, which will process the request and send the response.
+> We include four important files into the index.php: `settings.php`, `dependencies.php`, `middleware.php`, `routes.php`
+> I's a good idea to check before continuing. 
+
+### The App Instance
+The instance of Slim\App (`$app`) holds the app settings, routes, and dependencies.
+
+We register routes and methods by calling methods on the `$app` instance. 
+
+More importantly, the `$app` instance has the `Container` which register the app dependencies to be passed later to the controllers.
+> Check [dependencies.php](src/dependencies.php)
+
+> // TODO : more to come here.
 
 ## Request-Response Cycle
 All requests go through the same cycle:  `routing > middleware > conroller > response`
@@ -182,7 +198,18 @@ which is left from the skeleton project, handles the request in a closure
 
 The controller's is to validate the request data, check for authorization, process the request by calling a model or do other jobs, 
 and eventually return a response in the form JSON response. 
-> TODO: Explain further
+> // TODO : more to come here.
+
+
+## Authentication and Security
+### Authentication
+**JWT Authentication**
+
+**Authorization**
+
+
+### Security
+**CORS**
 
 # Test
 `composer test`
