@@ -110,8 +110,9 @@ php vendor/bin/phinx migrate
 
 The data is managed by models which represent the business entities of the app. There are four models `User`, `Article`, `Comment`, and `Tag`. 
 They can be found at [Models Directory](src/Conduit/Models). Each model has corresponding table in the database. 
+These Models extends `Illuminate\Database\Eloquent\Model` which provides the ORM implementations
 
-Relationships with other models are defined by each model using Eloquent ORM.
+Relationships with other models are defined by each model using Eloquent.
 For example, `User-Comment` is a one-to-many relationship 
 which is defined [by the User model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/User.php#L66-L69)
 and [by the Comment model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Comment.php#L41-L43).
@@ -160,8 +161,56 @@ More importantly, the `$app` instance has the `Container` which register the app
 > Check [dependencies.php](src/dependencies.php)
 
 ### Container Dependencies and Services
+In different part of the application we need to use other classes and services. These classes and services also depends on other classes.
+Managing these dependencies becomes easier when have a container to hold them. Basically, we configure these classes and store then in the container.
+Later, when we need a service or a class we ask the container, and it will instantiate the class based on our configuration and return it.
 
-> // TODO : more to come here.
+The container is configured in the [dependencies.php](src/dependencies.php).
+We start be retrieving the container from the `$app` instance and the required services: 
+```php
+    $container = $app->getContainer();
+    
+    $container['logger'] = function ($c) {
+        $settings = $c->get('settings')['logger'];
+        $logger = new Monolog\Logger($settings['name']);
+        $logger->pushProcessor(new Monolog\Processor\UidProcessor());
+        $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
+    
+        return $logger;
+    };
+```
+The above code registers a configured instance of the `logger` in the container. Later we can ask for the `logger`
+```php
+    $logger = $container->get('logger');
+    $logger->info('log message');
+```
+
+We register two middleware with the container:
+```php
+    // Jwt Middleware
+    $container['jwt'] = function ($c) {
+    
+        $jws_settings = $c->get('settings')['jwt'];
+    
+        return new \Slim\Middleware\JwtAuthentication($jws_settings);
+    };
+    
+    // Optional Auth Middleware
+    $container['optionalAuth'] = function ($c) {
+      return new OptionalAuth($c);
+    };
+``` 
+
+#### Service Providers
+The above services example will not be instantiated until we call for them.
+However, we could use a service provider to have some services available without retrieving them from the container.
+
+Our app use Eloquent ORM to handle our data models. Eloquent must be configured and booted. 
+We do this in the [EloquentServiceProvider](src/Conduit/Services/Database/EloquentServiceProvider.php) class,
+and register the service provider with the container.
+```php
+    $container->register(new \Conduit\Services\Database\EloquentServiceProvider());
+```
 
 ## Request-Response Cycle
 All requests go through the same cycle:  `routing > middleware > conroller > response`
