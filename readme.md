@@ -206,18 +206,18 @@ and eventually return a response in the form JSON response.
 > // TODO : more to come here.
 
 
-## Authentication and Security
-### Authentication
+# Authentication and Security
+## Authentication
 The api routes can be open to the public without authentication e.g [Get Article](https://github.com/gothinkster/realworld/tree/master/api#get-article).
 Some routes must be authenticated before being processed e.g [Follow user](https://github.com/gothinkster/realworld/tree/master/api#follow-user).  
 Other routes require optional authentication and can be submitted without authentication. 
 However, when the request has a `Token`, the request must be authenticated.
-This will make a difference in that the request user identity will be know when we have an authenticated user, and the response must reflect that. 
+This will make a difference in that the request's user identity will be know when we have an authenticated user, and the response must reflect that. 
 For example, the [Get Profile](https://github.com/gothinkster/realworld/tree/master/api#get-profile)
 endpoint has an optional authentication. The response will be a profile of a user, 
 and the value of `following` in the response will depend on whether we have a`Token` in the request.
 
-#### JWT
+### JWT
 **Basic Idea**
 Unlike traditional web application, when designing a RESTful Api, when don't have a session to authenticate.
 On popular way to authenticate api requests is by using [JWT](https://jwt.io/).
@@ -241,12 +241,51 @@ by the [Auth service class](https://github.com/alhoqbani/slim-php-realworld-exam
 
 Finally, we send the token with the response back to the user/client.
 
-**JWT Authentication**
+**JWT Verification**
+To verify the *JWT* Token we are using [tuupola/slim-jwt-auth](https://appelsiini.net/projects/slim-jwt-auth/) library.
+The library provides a middleware to add to the protected routes. The documentations suggest adding the middleware to app globally
+and define the protected routes. However, in this app, we are taking slightly different approach.
 
-**Authorization**
+We add a configured instance of the middleware to the Container, and then add the middleware to every protected route individually.
+> Review [Container Dependencies](#container-dependencies-and-services) about registering the middleware.
+
+In the [routes.php](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/routes.php#L19) file,
+we resolve the middleware out of the container and assign to the variable `$jwtMiddleware`
+
+Then, when defining the protected route, we add the middleware using the `add` method:
+```php
+        $jwtMiddleware = $this->getContainer()->get('jwt');
+        $this->post('/articles', ArticleController::class . ':store')->add($jwtMiddleware)
+```
+The rest is on the `tuupola/slim-jwt-auth` to verify the token.
+If the token is invalid or not provided, a 401 response will be returned.
+Otherwise, the request will be passed to the controller for processing.
+
+**Optional Routes**
+For the optional authentication, we create a custom middleware [OptionalAuth](src/Conduit/Middleware/OptionalAuth.php).
+The middleware will check if there a token present in the request header, it will invoke the jwt middleware to verify the token. 
+
+Again, we use the OptionalAuth middleware by store it in Container and retrieve it to add to the optional routes.
+```php
+        $optionalAuth = $this->getContainer()->get('optionalAuth');
+        $this->get('/articles/feed', ArticleController::class . ':index')->add($optionalAuth);
+```
 
 
-### Security
+## Authorization
+Some routes required authorization to verify that user is authorized to submit the request.
+For example, when a user wants to edit an article, we need to verify that he is owner of the article.
+
+The authorization is handled by the controller. Simply, the controller will compare the article's user_id with request's user.
+If not authorized, the controller will return a 403 response.
+```php
+        if ($requestUser->id != $article->user_id) {
+            return $response->withJson(['message' => 'Forbidden'], 403);
+        }
+```
+However, in a bigger application you might want to implement more robust authorization system.
+
+## Security
 **CORS**
 
 # Test
