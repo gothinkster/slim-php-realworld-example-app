@@ -17,7 +17,7 @@ For more information on how to this works with other frontends/backends, head ov
 The basic idea behind this app is to provide a backend web service for the website [Conduit](https://demo.realworld.io/#/)
 made by the [Thinkster](https://github.com/gothinkster) team.
 
-It is designed as an api which process requests and returned JSON responses. 
+It is designed as an api which process requests and return JSON responses. 
 
  **tl;dr commands** 
 ```bash
@@ -89,8 +89,8 @@ The app is built using a relational database (e.g. MySQL), and consists of 8 tab
 
 > Setup the database
 > Create a database in MySQL and name it `conduit` or whatever you prefer. 
-> Next, don't forget to update (Environments Variables)[#environments-variables] in `.env` file.
-Check [Database Documentation](docs/database.md) for details on the schema. 
+> Next, don't forget to update [Environments Variables](#environments-variables) in `.env` file.
+> Check [Database Documentation](docs/database.md) for details on the schema. 
 
 ***Database Migration:***
 
@@ -101,6 +101,7 @@ It also holds the history of any changes made to the database schema and provide
 The app database migrations can be found at [the migration directory](database/migrations).
 Migrations are performed using [Phinx](https://phinx.org/).
 > Migrate the Database
+
 To create all the tables using migration run the following command from the project directory.
 ```bash
 php vendor/bin/phinx migrate
@@ -110,7 +111,7 @@ php vendor/bin/phinx migrate
 
 The data is managed by models which represent the business entities of the app. There are four models `User`, `Article`, `Comment`, and `Tag`. 
 They can be found at [Models Directory](src/Conduit/Models). Each model has corresponding table in the database. 
-These Models extends `Illuminate\Database\Eloquent\Model` which provides the ORM implementations
+These models extends `Illuminate\Database\Eloquent\Model` which provides the ORM implementations.
 
 Relationships with other models are defined by each model using Eloquent.
 For example, `User-Comment` is a one-to-many relationship 
@@ -122,7 +123,7 @@ Beside The four tables in the database representing each model, the database has
 For example, An article can have many tags, and a tag can be assigned to many articles. This relationship is defined by the 
 [Article model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Article.php#L69-L72) 
 and the [Tag model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Tag.php#L31-L34),
-and is stored in the table `article_tag` which .
+and is stored in the table `article_tag`.
 
 ***Data Seeding***
 To populate the database with data for testing and experimenting with the code. Run:
@@ -131,7 +132,7 @@ php vendor/bin/phinx migrate
 ```
 To edit how the data is seeded check the file: [DataSeeder](database/seeds/DataSeeder.php).
 
-> The command `composer refresh-database` will run a rollback all migrations, migrate the database and seed the data.
+> The command `composer refresh-database` will rollback all migrations, migrate the database and seed the data.
 > (Note: all data will be lost from the database) 
 
 ## The Slim Application
@@ -150,7 +151,7 @@ There, we boot the app by creating an instance of Slim\App and require all the s
 
 Finally, we run the app by calling `$app->run()`, which will process the request and send the response.
 > We include four important files into the index.php: `settings.php`, `dependencies.php`, `middleware.php`, `routes.php`
-> I's a good idea to check before continuing. 
+> I's a good idea to check them before continuing. 
 
 ### The App Instance
 The instance of Slim\App (`$app`) holds the app settings, routes, and dependencies.
@@ -158,15 +159,14 @@ The instance of Slim\App (`$app`) holds the app settings, routes, and dependenci
 We register routes and methods by calling methods on the `$app` instance. 
 
 More importantly, the `$app` instance has the `Container` which register the app dependencies to be passed later to the controllers.
-> Check [dependencies.php](src/dependencies.php)
 
 ### Container Dependencies and Services
-In different part of the application we need to use other classes and services. These classes and services also depends on other classes.
-Managing these dependencies becomes easier when have a container to hold them. Basically, we configure these classes and store then in the container.
+In different parts of the application we need to use other classes and services. These classes and services also depends on other classes.
+Managing these dependencies becomes easier when we have a container to hold them. Basically, we configure these classes and store them in the container.
 Later, when we need a service or a class we ask the container, and it will instantiate the class based on our configuration and return it.
 
 The container is configured in the [dependencies.php](src/dependencies.php).
-We start be retrieving the container from the `$app` instance and the required services: 
+We start be retrieving the container from the `$app` instance and configure the required services: 
 ```php
     $container = $app->getContainer();
     
@@ -186,6 +186,7 @@ The above code registers a configured instance of the `logger` in the container.
 ```
 
 We register two middleware with the container:
+> We will see them in action later in the [Authentication](#authentication) section.
 ```php
     // Jwt Middleware
     $container['jwt'] = function ($c) {
@@ -211,26 +212,29 @@ and register the service provider with the container.
 ```php
     $container->register(new \Conduit\Services\Database\EloquentServiceProvider());
 ```
+For more details check [Dependency Container](https://www.slimframework.com/docs/concepts/di.html) documentations.
+
 
 ## Request-Response Cycle
 All requests go through the same cycle:  `routing > middleware > conroller > response`
 ### Routes:
 > Check the list of endpoints defined by the [RealWorld API Spec](https://github.com/gothinkster/realworld/tree/master/api#endpoints)
+
 All the app routes are defined in the [routes.php](src/routes.php) file.
 
 The Slim `$app` variable is responsible for registering the routes. 
-You will notice that all routes and enclosed in the `group` method which gives the prefix api to all routes: `http::/localhost/api`
+You will notice that all routes are enclosed in the `group` method which gives the prefix api to all routes: `http::/localhost/api`
 
-Every route is defined by method correspond to HTTP verb. For example, a post requests to register a user is defined by:
+Every route is defined by a method corresponds to the HTTP verb. For example, a post request to register a user is defined by:
 ```php
     $this->post('/users', RegisterController::class . ':register')->setName('auth.register');
 ```
-> Notice: we use `$this` because where inside a closure that is bound to `$app`; 
+> Notice: we use `$this` because where are inside a closure that is bound to `$app`; 
 
 The method, `post()`, defines `/api/users` endpoint and direct the request to method `register` on `RegisterController` class.
 
 ### Middleware
-In a Slim app, you can add middleware to all incoming routes, to specific route, or to group of routes. [Check the documentations](https://www.slimframework.com/docs/concepts/middleware.html) 
+In a Slim app, you can add middleware to all incoming routes, to a specific route, or to a group of routes. [Check the documentations](https://www.slimframework.com/docs/concepts/middleware.html) 
 
 In this app we add some middleware to specific routes. For example, to access `/api/articles` POST endpoint, the request will go through `$jwtMiddleware`
 ```php
@@ -246,13 +250,13 @@ for example.
 ### Controllers
 After passing through all assigned middleware, the request will be processed by a controller.
 > Note: You could process the request inside a closure passed as the second argument to the method defining the route.
-> For example, (the last route)[https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/routes.php#L88-L95],
-which is left from the skeleton project, handles the request in a closure
+> For example, [the last route](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/routes.php#L88-L95),
+which is left as an example from the skeleton project, handles the request in a closure
 > [Check the documentations](https://www.slimframework.com/docs/objects/router.html#route-callbacks).
 
-The controller's is to validate the request data, check for authorization, process the request by calling a model or do other jobs, 
-and eventually return a response in the form JSON response. 
-> // TODO : more to come here.
+The controller's job is to validate the request data, check for authorization, process the request by calling a model or do other jobs, 
+and eventually return a response in the form of JSON response. 
+> // TODO : Explain how dependencies are injected to the controller.
 
 
 # Authentication and Security
@@ -267,7 +271,7 @@ endpoint has an optional authentication. The response will be a profile of a use
 and the value of `following` in the response will depend on whether we have a`Token` in the request.
 
 ### JWT
-**Basic Idea**
+#### Basic Idea
 Unlike traditional web application, when designing a RESTful Api, when don't have a session to authenticate.
 On popular way to authenticate api requests is by using [JWT](https://jwt.io/).
 
@@ -281,7 +285,7 @@ For more details, the [JWT Introduction](https://jwt.io/introduction/) is a good
 > - Generate a *JWT* and send to the user when he sign up or login using his email/password.  
 > - Verify the validity of *JWT* submitted with any subsequent requests.
 
-**Generating The Token**
+#### Generating The Token
 We generate the Token when the user sign up or login using his email/password.
 This is done in the [RegisterController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
 and [LoginController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
@@ -290,7 +294,7 @@ by the [Auth service class](https://github.com/alhoqbani/slim-php-realworld-exam
 
 Finally, we send the token with the response back to the user/client.
 
-**JWT Verification**
+#### JWT Verification
 To verify the *JWT* Token we are using [tuupola/slim-jwt-auth](https://appelsiini.net/projects/slim-jwt-auth/) library.
 The library provides a middleware to add to the protected routes. The documentations suggest adding the middleware to app globally
 and define the protected routes. However, in this app, we are taking slightly different approach.
@@ -310,7 +314,7 @@ The rest is on the `tuupola/slim-jwt-auth` to verify the token.
 If the token is invalid or not provided, a 401 response will be returned.
 Otherwise, the request will be passed to the controller for processing.
 
-**Optional Routes**
+#### Optional Routes
 For the optional authentication, we create a custom middleware [OptionalAuth](src/Conduit/Middleware/OptionalAuth.php).
 The middleware will check if there a token present in the request header, it will invoke the jwt middleware to verify the token. 
 
@@ -322,9 +326,9 @@ Again, we use the OptionalAuth middleware by store it in Container and retrieve 
 
 ## Authorization
 Some routes required authorization to verify that user is authorized to submit the request.
-For example, when a user wants to edit an article, we need to verify that he is owner of the article.
+For example, when a user wants to edit an article, we need to verify that he is the owner of the article.
 
-The authorization is handled by the controller. Simply, the controller will compare the article's user_id with request's user.
+The authorization is handled by the controller. Simply, the controller will compare the article's user_id with request's user id.
 If not authorized, the controller will return a 403 response.
 ```php
         if ($requestUser->id != $article->user_id) {
@@ -334,13 +338,13 @@ If not authorized, the controller will return a 403 response.
 However, in a bigger application you might want to implement more robust authorization system.
 
 ## Security
-**CORS**
+### CORS
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) is used when the request is coming from a different host.
 By default, web browsers will prevent such requests.
 The browser will start by sending an `OPTION` request to the server to get the approval and then send the actual request.
 
 Therefor, we handle cross-origin HTTP requests by making two changes to our app:
-- Allow `OPTIONS` request.  
+- Allow `OPTIONS` requests.  
 - Return the approval in the response. 
 
 This is done in the by adding two middleware in the [middleware.php](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/middleware.php) file
