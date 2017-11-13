@@ -50,7 +50,7 @@ class ArticleController
      */
     public function index(Request $request, Response $response, array $args)
     {
-        // TODO Extract the login of filtering articles to its own class
+        // TODO Extract the logic of filtering articles to its own class
 
         $requestUserId = optional($requestUser = $this->auth->requestUser($request))->id;
         $builder = Article::query()->latest()->with(['tags', 'user'])->limit(20);
