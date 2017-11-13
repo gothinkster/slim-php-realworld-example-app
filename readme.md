@@ -186,7 +186,7 @@ The above code registers a configured instance of the `logger` in the container.
 ```
 
 We register two middleware with the container:
-> We will see them in action later in the [Authentication](#authentication) section.
+> We will see them in action later in the [Authentication](#authentication-jwt) section.
 ```php
     // Jwt Middleware
     $container['jwt'] = function ($c) {
@@ -240,7 +240,7 @@ In this app we add some middleware to specific routes. For example, to access `/
 ```php
     $this->post('/articles', ArticleController::class . ':store')->add($jwtMiddleware)->setName('article.store');
 ```
-> see [Authentication](#authentication) for details
+> see [Authentication](#authentication-jwt) for details
 
 Also, We add some global middleware to apply to all requests in [middleware.php](src/middleware.php).
 [CORS Middleware](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/middleware.php#L9-L16)
@@ -260,7 +260,7 @@ and eventually return a response in the form of JSON response.
 
 
 # Authentication and Security
-## Authentication
+## Authentication (JWT)
 The api routes can be open to the public without authentication e.g [Get Article](https://github.com/gothinkster/realworld/tree/master/api#get-article).
 Some routes must be authenticated before being processed e.g [Follow user](https://github.com/gothinkster/realworld/tree/master/api#follow-user).  
 Other routes require optional authentication and can be submitted without authentication. 
@@ -270,8 +270,7 @@ For example, the [Get Profile](https://github.com/gothinkster/realworld/tree/mas
 endpoint has an optional authentication. The response will be a profile of a user, 
 and the value of `following` in the response will depend on whether we have a`Token` in the request.
 
-### JWT
-#### Basic Idea
+### Basic Idea
 Unlike traditional web application, when designing a RESTful Api, when don't have a session to authenticate.
 On popular way to authenticate api requests is by using [JWT](https://jwt.io/).
 
@@ -285,7 +284,7 @@ For more details, the [JWT Introduction](https://jwt.io/introduction/) is a good
 > - Generate a *JWT* and send to the user when he sign up or login using his email/password.  
 > - Verify the validity of *JWT* submitted with any subsequent requests.
 
-#### Generating The Token
+### Generating The Token
 We generate the Token when the user sign up or login using his email/password.
 This is done in the [RegisterController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
 and [LoginController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
@@ -294,7 +293,7 @@ by the [Auth service class](https://github.com/alhoqbani/slim-php-realworld-exam
 
 Finally, we send the token with the response back to the user/client.
 
-#### JWT Verification
+### JWT Verification
 To verify the *JWT* Token we are using [tuupola/slim-jwt-auth](https://appelsiini.net/projects/slim-jwt-auth/) library.
 The library provides a middleware to add to the protected routes. The documentations suggest adding the middleware to app globally
 and define the protected routes. However, in this app, we are taking slightly different approach.
@@ -314,7 +313,7 @@ The rest is on the `tuupola/slim-jwt-auth` to verify the token.
 If the token is invalid or not provided, a 401 response will be returned.
 Otherwise, the request will be passed to the controller for processing.
 
-#### Optional Routes
+### Optional Routes
 For the optional authentication, we create a custom middleware [OptionalAuth](src/Conduit/Middleware/OptionalAuth.php).
 The middleware will check if there a token present in the request header, it will invoke the jwt middleware to verify the token. 
 
