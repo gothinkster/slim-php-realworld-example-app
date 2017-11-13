@@ -140,6 +140,9 @@ composer start
 ```
 This command will spin a local php server which is enough for testing.
 You can check the api by visiting [http://localhost:8080/api/articles](http://localhost:8080/api/articles)
+
+> To check all endpoints you need an HTTP client e.g [Postman](https://www.getpostman.com/).
+> There is Postman [collection made by Thinkster](https://github.com/gothinkster/realworld/blob/master/api/Conduit.postman_collection.json) team you could use.
 ### Entry Point:
 The server will direct all requests to [index.php](public/index.php). 
 There, we boot the app by creating an instance of Slim\App and require all the settings and relevant files.
@@ -155,6 +158,8 @@ We register routes and methods by calling methods on the `$app` instance.
 
 More importantly, the `$app` instance has the `Container` which register the app dependencies to be passed later to the controllers.
 > Check [dependencies.php](src/dependencies.php)
+
+### Container Dependencies and Services
 
 > // TODO : more to come here.
 
@@ -203,6 +208,39 @@ and eventually return a response in the form JSON response.
 
 ## Authentication and Security
 ### Authentication
+The api routes can be open to the public without authentication e.g [Get Article](https://github.com/gothinkster/realworld/tree/master/api#get-article).
+Some routes must be authenticated before being processed e.g [Follow user](https://github.com/gothinkster/realworld/tree/master/api#follow-user).  
+Other routes require optional authentication and can be submitted without authentication. 
+However, when the request has a `Token`, the request must be authenticated.
+This will make a difference in that the request user identity will be know when we have an authenticated user, and the response must reflect that. 
+For example, the [Get Profile](https://github.com/gothinkster/realworld/tree/master/api#get-profile)
+endpoint has an optional authentication. The response will be a profile of a user, 
+and the value of `following` in the response will depend on whether we have a`Token` in the request.
+
+#### JWT
+**Basic Idea**
+Unlike traditional web application, when designing a RESTful Api, when don't have a session to authenticate.
+On popular way to authenticate api requests is by using [JWT](https://jwt.io/).
+
+The basic workflow of *JWT* is that our application will generate a token and send it with the response when the user sign up
+or login. The user will keep this token and send it back with any subsequent requests to authenticate his request. 
+The generated token will have header, payload, and a signature.
+It also should have an expiration time and other data to identify the subject/user of the token. 
+For more details, the [JWT Introduction](https://jwt.io/introduction/) is a good resource.
+
+> Dealing with *JWT* is twofold: 
+> - Generate a *JWT* and send to the user when he sign up or login using his email/password.  
+> - Verify the validity of *JWT* submitted with any subsequent requests.
+
+**Generating The Token**
+We generate the Token when the user sign up or login using his email/password.
+This is done in the [RegisterController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
+and [LoginController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
+by the [Auth service class](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Services/Auth/Auth.php#L47-L64).
+> Review [Container Dependencies](#container-dependencies-and-services) about the auth service.
+
+Finally, we send the token with the response back to the user/client.
+
 **JWT Authentication**
 
 **Authorization**
