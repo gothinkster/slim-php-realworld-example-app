@@ -19,10 +19,15 @@
     <testsuite name="Unit Tests">
         <directory suffix="Test.php">./tests/Unit</directory>
     </testsuite>
-    <!--<logging>-->
-    <!--<log type="coverage-html" target="public/tests/coverage"/>-->
-    <!--<log type="testdox-html" target="public/tests/index.html"/>-->
-    <!--</logging>-->
+    <logging>
+        <log type="coverage-html" target="public/tests/coverage"/>
+        <log type="testdox-html" target="public/tests/index.html"/>
+    </logging>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="false">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
     <php>
         <env name="APP_ENV" value="testing"/>
 
