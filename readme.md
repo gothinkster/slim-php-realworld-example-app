@@ -161,6 +161,7 @@ and is stored in the table `article_tag`.
 To populate the database with data for testing and experimenting with the code. Run:
 ```bash
 php vendor/bin/phinx migrate
+php vendor/bin/phinx seed:run
 ```
 To edit how the data is seeded check the file: [DataSeeder](database/seeds/DataSeeder.php).
 
