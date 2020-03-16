@@ -53,7 +53,7 @@ It is designed as an api which process requests and return JSON responses.
 
  **tl;dr commands** 
 ```bash
-git clone https://github.com/alhoqbani/slim-php-realworld-example-app.git
+git clone https://github.com/gothinkster/slim-php-realworld-example-app.git
 cd slim-php-realworld-example-app
 composer install
 ```
@@ -73,7 +73,7 @@ Make sure you have php, mysql and composer installed on your machine.
 ## Installation
 > You should start by cloning the repository into your local machine.
 ```bash
-git clone https://github.com/alhoqbani/slim-php-realworld-example-app.git
+git clone https://github.com/gothinkster/slim-php-realworld-example-app.git
 cd slim-php-realworld-example-app
 ```
 ### Dependencies 
