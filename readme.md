@@ -53,7 +53,7 @@ It is designed as an api which process requests and return JSON responses.
 
  **tl;dr commands** 
 ```bash
-git clone https://github.com/alhoqbani/slim-php-realworld-example-app.git
+git clone https://github.com/gothinkster/slim-php-realworld-example-app.git
 cd slim-php-realworld-example-app
 composer install
 ```
@@ -73,7 +73,7 @@ Make sure you have php, mysql and composer installed on your machine.
 ## Installation
 > You should start by cloning the repository into your local machine.
 ```bash
-git clone https://github.com/alhoqbani/slim-php-realworld-example-app.git
+git clone https://github.com/gothinkster/slim-php-realworld-example-app.git
 cd slim-php-realworld-example-app
 ```
 ### Dependencies 
@@ -93,11 +93,11 @@ composer install
 - [phpunit/phpunit](https://phpunit.de/) Testing Framework.
 
 ### Environments Variables
-All the app environments variables are stored in the [.env](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/master/.env.example) file.
+All the app environments variables are stored in the [.env](https://github.com/gothinkster/slim-php-realworld-example-app/blob/master/.env.example) file.
 
 The command `composer install` will copy .env.example to `.env` which should have your own variables and never shared or committed into git.
 > Check the .env file and edit the variables according to your environments. (Database name/user/password).
-The `.env` is loaded using `vlucas/phpdotenv` through these [lines of code](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/master/src/settings.php#L3-L11)
+The `.env` is loaded using `vlucas/phpdotenv` through these [lines of code](https://github.com/gothinkster/slim-php-realworld-example-app/blob/master/src/settings.php#L3-L11)
 
 # Code Overview
 ## Directory Structure
@@ -147,14 +147,14 @@ These models extends `Illuminate\Database\Eloquent\Model` which provides the ORM
 
 Relationships with other models are defined by each model using Eloquent.
 For example, `User-Comment` is a one-to-many relationship 
-which is defined [by the User model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/User.php#L66-L69)
-and [by the Comment model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Comment.php#L41-L43).
+which is defined [by the User model](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Models/User.php#L66-L69)
+and [by the Comment model](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Models/Comment.php#L41-L43).
 This relationship is stored in the database by having a foreign key `user_id` in the comments table.
 
 Beside The four tables in the database representing each model, the database has three other tables to store many-to-many relationships (`article_tag`, `user_favorite`, `users_following`).
 For example, An article can have many tags, and a tag can be assigned to many articles. This relationship is defined by the 
-[Article model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Article.php#L69-L72) 
-and the [Tag model](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/Conduit/Models/Tag.php#L31-L34),
+[Article model](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Models/Article.php#L69-L72) 
+and the [Tag model](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Models/Tag.php#L31-L34),
 and is stored in the table `article_tag`.
 
 ***Data Seeding***
@@ -276,14 +276,14 @@ In this app we add some middleware to specific routes. For example, to access `/
 > see [Authentication](#authentication-jwt) for details
 
 Also, We add some global middleware to apply to all requests in [middleware.php](src/middleware.php).
-[CORS Middleware](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/middleware.php#L9-L16)
+[CORS Middleware](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/middleware.php#L9-L23)
 for example.
 > see [CORS](#cors) for details
 
 ### Controllers
 After passing through all assigned middleware, the request will be processed by a controller.
 > Note: You could process the request inside a closure passed as the second argument to the method defining the route.
-> For example, [the last route](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/51ef4cba018673ba63ec2f8cb210effff26aaec5/src/routes.php#L88-L95),
+> For example, [the last route](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/routes.php#L88-L95),
 which is left as an example from the skeleton project, handles the request in a closure
 > [Check the documentations](https://www.slimframework.com/docs/objects/router.html#route-callbacks).
 
@@ -319,9 +319,9 @@ For more details, the [JWT Introduction](https://jwt.io/introduction/) is a good
 
 ### Generating The Token
 We generate the Token when the user sign up or login using his email/password.
-This is done in the [RegisterController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
-and [LoginController](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Controllers/Auth/RegisterController.php#L55)
-by the [Auth service class](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/Conduit/Services/Auth/Auth.php#L47-L64).
+This is done in the [RegisterController](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Controllers/Auth/RegisterController.php#L55)
+and [LoginController](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Controllers/Auth/RegisterController.php#L55)
+by the [Auth service class](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/Conduit/Services/Auth/Auth.php#L47-L64).
 > Review [Container Dependencies](#container-dependencies-and-services) about the auth service.
 
 Finally, we send the token with the response back to the user/client.
@@ -334,7 +334,7 @@ and define the protected routes. However, in this app, we are taking slightly di
 We add a configured instance of the middleware to the Container, and then add the middleware to every protected route individually.
 > Review [Container Dependencies](#container-dependencies-and-services) about registering the middleware.
 
-In the [routes.php](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/routes.php#L19) file,
+In the [routes.php](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/routes.php#L19) file,
 we resolve the middleware out of the container and assign to the variable `$jwtMiddleware`
 
 Then, when defining the protected route, we add the middleware using the `add` method:
@@ -379,7 +379,7 @@ Therefor, we handle cross-origin HTTP requests by making two changes to our app:
 - Allow `OPTIONS` requests.  
 - Return the approval in the response. 
 
-This is done in the by adding two middleware in the [middleware.php](https://github.com/alhoqbani/slim-php-realworld-example-app/blob/b852c69e40271054b5fa9ccbf36667807b71f286/src/middleware.php) file
+This is done in the by adding two middleware in the [middleware.php](https://github.com/gothinkster/slim-php-realworld-example-app/blob/c826cb831e2de6292f1feb5a1ba3584221f40795/src/middleware.php) file
 The first middleware will add the required headers for CORS approval.
 And the second, deals with issue of redirect when the route ends with a slash.
 
